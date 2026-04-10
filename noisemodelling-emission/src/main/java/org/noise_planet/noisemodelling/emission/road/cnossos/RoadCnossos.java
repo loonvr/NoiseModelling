@@ -31,6 +31,7 @@ import static org.noise_planet.noisemodelling.emission.utils.Utils.*;
 public class RoadCnossos {
     private static JsonNode RoadCnossos_2015 = parse(RoadCnossos.class.getResourceAsStream("RoadCnossos_2015.json")); // old coefficients in 2015 amendments
     private static JsonNode cnossosData2020 =parse(RoadCnossos.class.getResourceAsStream("RoadCnossos_2020.json")); // new coefficients in 2020 amendments
+    private static JsonNode cnossosDataNL = parse(RoadCnossos.class.getResourceAsStream("RoadCnossos_NL.json")); // Dutch coefficients
 
     private static JsonNode parse(InputStream inputStream) {
         try {
@@ -43,14 +44,14 @@ public class RoadCnossos {
 
     /**
      * Get the CNOSSOS coefficients from a specific file version.
-     * @param fileVersion 1=RailwayCnossosEU_2020.json; other = RailwayCnossosSNCF_2021.json
+     * @param fileVersion 1=RoadCnossos_2015.json; 2=cnossosDataNL.json, other = RailwayCnossosSNCF_2021.json
      * @return
      */
     public static JsonNode getCnossosData(int fileVersion) {
-        if (fileVersion == 1) {
-            return RoadCnossos_2015; // old coefficients in 2015 amendments
-        } else {
-            return cnossosData2020; // new coefficients in 2020 amendments
+        switch (fileVersion) {
+            case 1: return RoadCnossos_2015; // old coefficients in 2015 amendments
+            case 2: return cnossosDataNL; // Dutch specific coefficients
+            default: return cnossosData2020; // new coefficients in 2020 amendments
         }
     }
 
