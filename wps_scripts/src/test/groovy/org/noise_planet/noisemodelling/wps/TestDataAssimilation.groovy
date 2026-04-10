@@ -72,7 +72,8 @@ class TestDataAssimilation extends JdbcTestCase {
                 "tableBuilding": "BUILDINGS",
                 "tableReceivers": "SENSORS_LOCATION",
                 "confExportSourceId": false,
-                "confMaxSrcDist": 500,
+                "confMaxSrcDist": 50,
+                "confMaxError": 3,
                 "confDiffVertical": false,
                 "confDiffHorizontal": true
         ])
@@ -110,7 +111,8 @@ class TestDataAssimilation extends JdbcTestCase {
                       "tableBuilding": "BUILDINGS",
                       "tableReceivers": "RECEIVERS",
                       "confExportSourceId": false,
-                      "confMaxSrcDist": 200,
+                      "confMaxSrcDist": 50,
+                      "confMaxError": 3,
                       "confDiffVertical": false,
                       "confDiffHorizontal": true
         ])

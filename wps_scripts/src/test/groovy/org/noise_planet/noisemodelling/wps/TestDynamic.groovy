@@ -286,6 +286,10 @@ class TestDynamic extends JdbcTestCase {
                 "delta" : 25,
                 "outputTriangleTable" : true])
 
+        // Remove receiver in buildings
+        connection.createStatement().execute("DELETE FROM RECEIVERS WHERE EXISTS(SELECT 1 FROM BUILDINGS " +
+                "WHERE RECEIVERS.THE_GEOM && BUILDINGS.THE_GEOM AND ST_INTERSECTS(RECEIVERS.THE_GEOM,BUILDINGS.THE_GEOM))")
+
         // Set a height to the receivers at 1.5 m
         new Set_Height().exec(connection,
                 [ "tableName":"RECEIVERS",
@@ -315,7 +319,7 @@ class TestDynamic extends JdbcTestCase {
                  "tableSourcesEmission": "SOURCES_EMISSION",
                  "tableReceivers"      : "RECEIVERS",
                  "maxError"            : 3.0,
-                 "confMaxSrcDist"      : 800,
+                 "confMaxSrcDist"      : 200,
                  "confDiffHorizontal"  : true,
                  "confReflOrder"       : 0
                 ])

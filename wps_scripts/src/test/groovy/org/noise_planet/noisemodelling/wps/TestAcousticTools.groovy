@@ -76,6 +76,7 @@ class TestAcousticTools extends JdbcTestCase {
 
         new Delaunay_Grid().exec(connection, ["buildingTableName": "BUILDINGS",
                                               "sourcesTableName" : "ROADS2",
+                                              "maxArea" : 0,
                                               "sourceDensification": 0]);
 
 
