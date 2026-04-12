@@ -44,13 +44,14 @@ public class RoadCnossos {
 
     /**
      * Get the CNOSSOS coefficients from a specific file version.
-     * @param fileVersion 1=RoadCnossos_2015.json; 2=cnossosDataNL.json, other = RailwayCnossosSNCF_2021.json
+     * @param fileVersion 1=RoadCnossos_2015.json; 528=cnossosDataNL.json, other = RailwayCnossosSNCF_2021.json
+     *                    Country specific codes following standard in ISO 3166-1-numeric
      * @return
      */
     public static JsonNode getCnossosData(int fileVersion) {
         switch (fileVersion) {
             case 1: return RoadCnossos_2015; // old coefficients in 2015 amendments
-            case 2: return cnossosDataNL; // Dutch specific coefficients
+            case 528: return cnossosDataNL; // Dutch specific coefficients
             default: return cnossosData2020; // new coefficients in 2020 amendments
         }
     }
