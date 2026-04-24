@@ -90,7 +90,7 @@ inputs = [
                 coefficientVersion            : [
                         name       : 'Coefficient version',
                         title      : 'Coefficient version',
-                        description: '&#127783; Cnossos coefficient version  (1 = 2015, 2 = 2020) </br> </br>' +
+                        description: '&#127783; Cnossos coefficient version  (1 = 2015, 2 = 2020, 528 = NL) </br> </br>' +
                                 '&#128736; Default value: <b>2</b>',
                         min        : 0, max: 1,
                         type       : Double.class
