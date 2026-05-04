@@ -11,7 +11,6 @@ package org.noise_planet.noisemodelling.jdbc.output;
 
 import org.h2gis.api.ProgressVisitor;
 import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.math.Vector3D;
 import org.noise_planet.noisemodelling.jdbc.EmissionTableGenerator;
 import org.noise_planet.noisemodelling.jdbc.NoiseMapDatabaseParameters;
 import org.noise_planet.noisemodelling.jdbc.input.SceneDatabaseInputSettings;
@@ -29,7 +28,6 @@ import org.noise_planet.noisemodelling.pathfinder.utils.AcousticIndicatorsFuncti
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.DoubleStream;
 
 import static org.noise_planet.noisemodelling.pathfinder.utils.AcousticIndicatorsFunctions.*;
 import static org.noise_planet.noisemodelling.pathfinder.utils.AcousticIndicatorsFunctions.wToDb;
@@ -81,7 +79,7 @@ public class AttenuationOutputSingleThread implements CutPlaneVisitor {
 
     private double[] processAndStoreAttenuation(AttenuationParameters data, CnossosPath proPathParameters, String period) {
         double[] attenuation = AttenuationCnossos.computeCnossosAttenuation(data, proPathParameters, multiThread.sceneWithEmission,
-                multiThread.noiseMapDatabaseParameters.exportAttenuationMatrix);
+                multiThread.noiseMapDatabaseParameters.exportAttenuationMatrix, period);
         if(multiThread.noiseMapDatabaseParameters.exportRaysMethod == NoiseMapDatabaseParameters.ExportRaysMethods.TO_RAYS_TABLE &&
                 multiThread.noiseMapDatabaseParameters.exportAttenuationMatrix) {
             CnossosPath cnossosPath = new CnossosPath(proPathParameters);
@@ -142,6 +140,16 @@ public class AttenuationOutputSingleThread implements CutPlaneVisitor {
                                         attenuation);
                         processNoiseLevel(receiverNoiseLevel);
                     }
+                } else if(scene.getUseDutchFavourableFraction()) {
+                    String[] periods = {"D", "E", "N"};
+                    for (int i = 0; i<3; i++) {
+                        double[] attenuation = dBToW(processAndStoreAttenuation(scene.defaultCnossosParameters, cnossosPath, periods[i]));
+                        ReceiverNoiseLevel receiverNoiseLevel =
+                                new ReceiverNoiseLevel(new PathFinder.SourcePointInfo(source),
+                                    new PathFinder.ReceiverPointInfo(receiver), periods[i],
+                                    attenuation);
+                        processNoiseLevel(receiverNoiseLevel);
+                    }
                 } else {
                     double[] attenuation = dBToW(processAndStoreAttenuation(scene.defaultCnossosParameters, cnossosPath, ""));
                     ReceiverNoiseLevel receiverNoiseLevel =
@@ -161,6 +169,9 @@ public class AttenuationOutputSingleThread implements CutPlaneVisitor {
                         // look for specific atmospheric settings for this period
                         if(scene.cnossosParametersPerPeriod.containsKey(period)) {
                             attenuation = dBToW(processAndStoreAttenuation(scene.cnossosParametersPerPeriod.get(period),
+                                    cnossosPath, period));
+                        } else if(scene.getUseDutchFavourableFraction()) {
+                            attenuation = dBToW(processAndStoreAttenuation(scene.defaultCnossosParameters,
                                     cnossosPath, period));
                         } else {
                             if(defaultAttenuation.length == 0) {
@@ -253,7 +264,7 @@ public class AttenuationOutputSingleThread implements CutPlaneVisitor {
                 cnossosPath.setSRSegment(CnossosPathBuilder.computeSegment(pts2D.get(0), pts2D.get(1), new double[] {0, 0}));
                 cnossosPath.getPointList().add(new PointPath(pts2D.get(0), 0, PointPath.POINT_TYPE.SRCE));
                 cnossosPath.getPointList().add(new PointPath(pts2D.get(1), 0, PointPath.POINT_TYPE.RECV));
-                double[] attenuation = dBToW(AttenuationCnossos.computeCnossosAttenuation(scene.defaultCnossosParameters, cnossosPath, scene, false));
+                double[] attenuation = dBToW(AttenuationCnossos.computeCnossosAttenuation(scene.defaultCnossosParameters, cnossosPath, scene, false, ""));
                 // For line source apply a gain on the attenuation
                 if(sourcePointInfo.li > 1) {
                     attenuation = multiplicationArray(attenuation, sourcePointInfo.li);

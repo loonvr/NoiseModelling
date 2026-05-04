@@ -257,6 +257,7 @@ public class DefaultTableLoader implements NoiseMapByReceiverMaker.TableLoader {
         scene.cnossosParametersPerPeriod = cnossosParametersPerPeriod;
         scene.defaultCnossosParameters = defaultParameters;
         scene.periodSet.addAll(cnossosParametersPerPeriod.keySet());
+        scene.setUseDutchFavourableFraction(noiseMapByReceiverMaker.getUseDutchFavourableFraction());
 
 
         // //////////////////////////////////////////////////////

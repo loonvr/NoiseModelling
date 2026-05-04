@@ -60,6 +60,16 @@ public class AttenuationParameters {
     // Wind rose for each directions
     private static final double angle_section = (2 * Math.PI) / DEFAULT_WIND_ROSE.length;
 
+    public String getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(String period) {
+        this.period = period;
+    }
+
+    public String period;
+
     public AttenuationParameters() {
         this(false);
     }
@@ -165,6 +175,25 @@ public class AttenuationParameters {
             throw new IllegalArgumentException(String.format("Wind roses length is not compatible %d!=%d",windRose.length,this.windRose.length));
         }
         this.windRose = windRose;
+    }
+
+    /**
+     * Get the fraction of favourable conditions for conditions in the Netherlands.
+     * @param propagationAngle propagation angle (radians) from source to receiver where 0: north to south, pi/2: east to west (south clockwise convention)
+     * @param period period of day: D, E, N
+     * @return the fraction of favourable conditions for Dutch meteo; 0.5 if period does not match D, E, or N
+     */
+    public double getDutchFavourFraction(double propagationAngle, String period){
+        double zeta = Math.toDegrees(propagationAngle);
+        if (period.equalsIgnoreCase("D")){
+            zeta = Math.toRadians(zeta + 35.);
+            return 0.34 - 0.1 * Math.sin(zeta) + 0.045 * Math.pow(Math.sin(zeta), 2);
+        }
+        if (period.equalsIgnoreCase("E") || period.equalsIgnoreCase("N")) {
+            zeta = Math.toRadians(zeta + 60.);
+            return 0.40 - 0.1 * Math.sin(zeta) + 0.035 * Math.pow(Math.sin(zeta), 2);
+        }
+        return 0.5;
     }
 
     public double getTemperature() {
@@ -471,6 +500,7 @@ public class AttenuationParameters {
         params.prime2520 = rs.getBoolean("PRIME2520");
         // Use the method as it will initialize the other parameters
         params.setTemperature(rs.getDouble("TEMPERATURE"));
+        params.setPeriod(rs.getString("PERIOD"));
         cnossosParametersPerPeriod.put(rs.getString("PERIOD"), params);
     }
 

@@ -234,6 +234,13 @@ inputs = [
                 min        : 0, max: 1,
                 type       : String.class
         ],
+        confDutchFraction: [
+                name       : 'Dutch favourable fraction',
+                title      : 'Dutch favourable fraction',
+                description: 'Use the Dutch formulas on calculating the ratio for favourable/homogenous propagation',
+                min        : 0, max: 1,
+                type       : Boolean.class
+        ],
         confRaysName            : [
                 name       : '',
                 title      : 'Export scene',
@@ -513,6 +520,10 @@ def exec(Connection connection, Map input) {
 
     if(input.containsKey("tablePeriodAtmosphericSettings")) {
         pointNoiseMap.getSceneInputSettings().setPeriodAtmosphericSettingsTableName(input.get("tablePeriodAtmosphericSettings") as String)
+    }
+
+    if(input.containsKey("confDutchFraction")) {
+        pointNoiseMap.setDutch(input.get("confDutchFraction") as boolean);
     }
 
     // Building height field name

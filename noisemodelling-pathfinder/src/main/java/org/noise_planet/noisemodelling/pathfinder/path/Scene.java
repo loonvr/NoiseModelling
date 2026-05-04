@@ -9,7 +9,6 @@
 
 package org.noise_planet.noisemodelling.pathfinder.path;
 
-import org.h2gis.api.ProgressVisitor;
 import org.h2gis.utilities.SpatialResultSet;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
@@ -65,6 +64,8 @@ public class Scene {
      *      sourcePointDistance = DistanceSourceReceiver / lineSourceSpacingRatio
      */
     public double lineSourceSpacingRatio = 2;
+
+    public boolean useDutchFavourableFraction = false;
 
     public Scene() {
         this.profileBuilder = new ProfileBuilder();
@@ -152,6 +153,8 @@ public class Scene {
         this.reflexionOrder = reflexionOrder;
     }
 
+    public boolean getUseDutchFavourableFraction() {return this.useDutchFavourableFraction;}
+    public void setUseDutchFavourableFraction(boolean d){this.useDutchFavourableFraction = d;}
     public void setComputeHorizontalDiffraction(boolean computeHorizontalDiffraction) {
         this.computeHorizontalDiffraction = computeHorizontalDiffraction;
     }

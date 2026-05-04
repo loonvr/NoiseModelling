@@ -583,10 +583,11 @@ public class AttenuationCnossos {
      * @param proPathParameters Cnossos paths
      * @param scene Scene with attenuation data
      * @param exportAttenuationMatrix if true, store intermediate values in proPathParameters for debugging purpose
+     * @param period calculate attenuation for this period of day
      * @return double list of attenuation
      */
     public static double[] computeCnossosAttenuation(AttenuationParameters data, CnossosPath proPathParameters,
-                                                     SceneWithAttenuation scene, boolean exportAttenuationMatrix) {
+                                                     SceneWithAttenuation scene, boolean exportAttenuationMatrix, String period) {
         if (data == null) {
             return new double[0];
         }
@@ -770,7 +771,12 @@ public class AttenuationCnossos {
 
         // Compute attenuation under the atmospheric conditions using the ray direction
         double[] aGlobalMeteoRay = new double[aGlobalMeteo.length];
-        double probability = data.getWindRose()[roseIndex]; // favourable probability
+        double probability;
+        if (scene != null && scene.getUseDutchFavourableFraction()) {
+            probability = data.getDutchFavourFraction(Math.atan2(-fieldVectorPropagation.getX(), -fieldVectorPropagation.getY()), period);
+        } else {
+            probability = data.getWindRose()[roseIndex]; // favourable probability
+        }
         if(!proPathParameters.isFavourable()) {
             // compute homogeneous conditions probability from favourable probability
             probability = 1 - probability;

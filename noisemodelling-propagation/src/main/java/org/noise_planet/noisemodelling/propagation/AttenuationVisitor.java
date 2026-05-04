@@ -53,7 +53,7 @@ public class AttenuationVisitor implements CutPlaneVisitor {
 
     private void processPath(String period, AttenuationParameters AttenuationParameters, CnossosPath path) {
         double[] aGlobalMeteo = AttenuationCnossos.computeCnossosAttenuation(AttenuationParameters, path,
-                multiThreadParent.scene, multiThreadParent.exportAttenuationMatrix);
+                multiThreadParent.scene, multiThreadParent.exportAttenuationMatrix, period);
         if (aGlobalMeteo != null && aGlobalMeteo.length > 0) {
             multiThreadParent.cnossosPathCount.addAndGet(1);
             if(keepRays) {
