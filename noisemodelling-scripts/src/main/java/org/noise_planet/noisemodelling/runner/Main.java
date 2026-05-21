@@ -20,7 +20,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.log4j.PropertyConfigurator;
 import org.h2gis.utilities.dbtypes.DBTypes;
 import org.h2gis.utilities.dbtypes.DBUtils;
 import org.noise_planet.noisemodelling.webserver.NoiseModellingServer;
@@ -33,12 +32,11 @@ import org.noise_planet.noisemodelling.webserver.utilities.LibraryInfo;
 import org.noise_planet.noisemodelling.webserver.utilities.Logging;
 import org.noise_planet.noisemodelling.pathfinder.utils.profiler.RootProgressVisitor;
 import org.noise_planet.noisemodelling.webserver.utilities.PgPassUtilities;
-import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.File;
+import java.net.URI;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.text.NumberFormat;
@@ -75,9 +73,17 @@ public class Main {
     }
 
     public static void main(String... args) throws Exception {
-        PropertyConfigurator.configure(
-                Objects.requireNonNull(NoiseModellingServer.class.getResource("static/log4j.properties")));
+        // Use internal logging settings
+        Logging.initConsoleLogging();
 
+        try {
+            parseArgsAndRun(args);
+        } finally {
+            Logging.clearAppenders();
+        }
+    }
+
+    public static void parseArgsAndRun(String... args) {
         // Arguments parser
         Options options = new Options();
         Option workingDirOption = new Option("w", "working-dir", true, "Path where the database and output logs will be written. It must be an existing folder with write permissions");
@@ -141,9 +147,9 @@ public class Main {
         scriptPath = commandLine.getOptionValue(scriptPathOption.getOpt());
         boolean shutdown = !commandLine.hasOption(shutdownOption.getOpt());
 
+        Logging.configureLoggerFromWorkingDirectory(workingDir, NoiseModellingServer.LOGGING_FILE_NAME, false);
         try (HikariDataSource ds = createDataSource(commandLine)) {
             // Initialize additional loggers
-            Logging.configureFileLogger(workingDir, NoiseModellingServer.LOGGING_FILE_NAME);
             RootProgressVisitor progressVisitor = new RootProgressVisitor(1, true, SECONDS_BETWEEN_PROGRESSION_PRINT);
             try {
                 File parentFolder = new File(scriptPath).getParentFile();
@@ -151,7 +157,8 @@ public class Main {
                 if(parentFolder != null) {
                     group = parentFolder.getName();
                 }
-                ScriptMetadata scriptMetadata = new ScriptMetadata(group, new File(scriptPath));
+                ScriptMetadata scriptMetadata = new ScriptMetadata(group, new File(scriptPath).toURI(),
+                        parentFolder == null ? new URI("") : parentFolder.toURI());
                 // Create Command line arguments specification using the Input specification of the WPS process
                 scriptMetadata.inputs.forEach((key, scriptInput) -> {
                     StringBuilder description = new StringBuilder(scriptInput.description.replaceAll("<[^>]*>", ""));
@@ -251,7 +258,7 @@ public class Main {
             HikariConfig config = new HikariConfig();
             config.setUsername(username);
             config.setPassword(password);
-            config.setDataSourceClassName(PGSimpleDataSource.class.getCanonicalName());
+            config.setDataSourceClassName(PostGISJTSDataSource.class.getCanonicalName());
             config.addDataSourceProperty("portNumbers", Integer.parseInt(port));
             config.addDataSourceProperty("databaseName", databaseName);
             config.addDataSourceProperty("serverNames", host);
