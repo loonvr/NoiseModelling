@@ -292,7 +292,7 @@ public class AttenuationOutputSingleThread implements CutPlaneVisitor {
                         double[] attenuationPerPeriod = attenuation;
                         if(parameters != scene.defaultCnossosParameters) {
                             attenuationPerPeriod = dBToW(AttenuationCnossos.computeCnossosAttenuation(parameters,
-                                    cnossosPath, scene, false));
+                                    cnossosPath, scene, false, periodEmission.period));
                             if(sourcePointInfo.li > 1) {
                                 attenuationPerPeriod = multiplicationArray(attenuationPerPeriod, sourcePointInfo.li);
                             }
