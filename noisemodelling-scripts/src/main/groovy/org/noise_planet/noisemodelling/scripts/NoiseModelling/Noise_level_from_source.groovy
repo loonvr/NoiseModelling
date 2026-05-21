@@ -511,7 +511,7 @@ def exec(Connection connection, Map input, ProgressVisitor progress) {
     }
 
     if(input.containsKey("confDutchFraction")) {
-        pointNoiseMap.setDutch(input.get("confDutchFraction") as boolean);
+        pointNoiseMap.setUseDutchFavourableFraction(input.get("confDutchFraction") as boolean);
     }
 
     // Building height field name
