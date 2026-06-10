@@ -8,8 +8,9 @@ Step 1: Download NoiseModelling
 
 Download the latest release of NoiseModelling on `Github`_.
 
-* Windows: you can directly download and run the ``NoiseModelling_5.x.x_install.exe`` installer file *(or you can also follow the Linux / Mac instructions below)*
-* Linux or Mac: download the ``NoiseModelling_5.x.x.zip`` file and unzip it into a chosen directory
+* Windows: you can directly download and run the ``NoiseModelling_*.exe`` installer file *(or you can also follow the Linux instructions below if you have the :doc:`Tutorial_Requirements`)*
+* MacOS: you can directly download and run the ``NoiseModelling_*.dmg`` installer file *(or you can also follow the Linux instructions below if you have the :doc:`Tutorial_Requirements`)*
+* Linux : download the ``NoiseModelling_6.x.x.zip`` file and unzip it into a chosen directory
 
 .. warning::
     The chosen directory can be anywhere, but make sure you have write access. If you are using a company computer, the Program Files folder is probably not a good idea.
@@ -17,12 +18,7 @@ Download the latest release of NoiseModelling on `Github`_.
 .. warning::
     For **Linux** and **Mac** users, please make sure your Java environment is correctly set up. For more information, please read the page :doc:`Tutorial_Requirements`. **Windows** users who are using the ``.exe`` file are not concerned, since the Java Runtime Environment is **already embedded**.
 
-.. note::
-    Starting from version 3.3, NoiseModelling releases include the user interface described in this tutorial.
-
 .. _Github : https://github.com/Universite-Gustave-Eiffel/NoiseModelling/releases
-
-
 
 Step 2: Start NoiseModelling GUI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,16 +107,30 @@ Once done, you can check whether the tables were correctly imported into the dat
     :align: center
     :width: 100%
 
+Step 5: Convert road traffic into noise emission sources lines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Step 5: Run Calculation
+The first step is to convert the traffic information on the roads to noise levels (vehicles per hour to an average value in dB)
+
+Drag & Drop the ``Road Emission from Traffic`` block into the WPS Builder window.
+
+Enter the name of the corresponding table in your database:
+
+- Roads table name: ``ROADS2`` This table contains the road geometries with traffic data for day, evening and night
+
+When ready, you can press ``Run Process``.
+
+As a result, the table ``LW_ROADS`` will be created in your database. This table contain the noise emission of your roads. The next step will run a simulation of the noise propagation to the receivers position.
+
+Step 6: Run Calculation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To run the calculation, drag the ``Noise_level_from_traffic`` block into the WPS Builder window.
+To run the calculation, drag the ``Noise_level_from_sources`` block into the WPS Builder window.
 
 Then, select the orange blocks and enter the name of the corresponding table in your database:
 
 - Building table name: ``BUILDINGS``
-- Roads table name: ``ROADS2`` This table contains the road geometries with traffic data for day, evening and night
+- Source table name: ``LW_ROADS`` This table contains the road geometries with the noise emission values for day, evening and night
 - Receivers table name: ``RECEIVERS`` Locations where noise levels are evaluated
 - DEM table name: ``DEM`` Digital elevation model
 - Ground absorption table: ``GROUND_TYPE`` Nature of the ground
@@ -138,7 +148,7 @@ When ready, you can press ``Run Process``.
 As a result, the table ``RECEIVERS_LEVEL`` will be created in your database. This table corresponds to the noise levels computed at receiver points. The column PERIOD corresponds to the 4 different periods of the day (D, E, N and DEN).
 
 
-Step 6: Export (& see) the results
+Step 7: Export (& see) the results
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can now export the output tables *(one by one)* in your preferred export format using the ``Export_Table`` block, giving the path of the file you want to create.
@@ -180,7 +190,7 @@ To display the result for a specific period, filter the rendering by the field P
     Now that you have made your first noise map (congratulations!), you can try again by adding or changing optional parameters to see the differences.
 
 
-Step 7: Know the possibilities
+Step 8: Know the possibilities
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Now that you have finished this introduction tutorial, take the time to read the description of each of the WPS blocks available in your NoiseModelling version.
