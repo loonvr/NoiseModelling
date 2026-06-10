@@ -13,6 +13,7 @@ package org.noise_planet.noisemodelling.webserver.script;
 
 import groovy.lang.GroovyShell;
 import groovy.lang.Script;
+import org.locationtech.jts.geom.Geometry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +56,9 @@ public class ScriptMetadata {
         this.scriptDirectory = scriptDirectory;
         this.group = group;
         Map metadata = parseGroovyScriptMetadata(file);
+        if(metadata.isEmpty()) {
+            throw new IOException("Not a valid Function");
+        }
         id = group + ":" + Path.of(file).getFileName().toString().replace(".groovy", "");
         title = metadata.getOrDefault("title", id).toString();
         description = metadata.getOrDefault("description", "").toString();
@@ -115,6 +119,32 @@ public class ScriptMetadata {
     }
 
     /**
+     * Cast the input content to the expected input type defined in the script metadata.
+     *
+     * @param expectedInputType the expected type of the input as defined in the script metadata
+     * @param inputValue the string input value containing the literal data to be cast
+     * @return the cast input content if successful, otherwise returns the original input content
+     * @throws org.locationtech.jts.io.ParseException if there is an error parsing a Geometry input
+     */
+    public static Object castInputUsingExpectedInputType(Class<?> expectedInputType, String inputValue) throws org.locationtech.jts.io.ParseException {
+        String typeName = expectedInputType.getName();
+        if (typeName.equals(Long.class.getName())) {
+            return Long.parseLong(inputValue);
+        } else if (typeName.equals(Integer.class.getName())) {
+            return Integer.parseInt(inputValue);
+        } else if (typeName.equals(Float.class.getName())) {
+            return Float.parseFloat(inputValue);
+        } else if (typeName.equals(Double.class.getName())) {
+            return Double.parseDouble(inputValue);
+        } else if (typeName.equals(Boolean.class.getName())) {
+            return Boolean.parseBoolean(inputValue);
+        } else if (typeName.equals(Geometry.class.getName())) {
+            return new org.locationtech.jts.io.WKTReader().read(inputValue);
+        }
+        return inputValue;
+    }
+
+    /**
      * Parses metadata from a provided Groovy script file and extracts details such as title,
      * description, inputs, and outputs defined within the script. The method analyzes the script
      * content to populate a metadata map, which includes blocks of inputs and outputs if defined.
@@ -127,8 +157,13 @@ public class ScriptMetadata {
     private static Map parseGroovyScriptMetadata(URI scriptFile) throws IOException {
         GroovyShell shell = new GroovyShell();
         Script script = shell.parse(scriptFile);
-        script.run();
-        return script.getBinding().getVariables();
+        // Expect at least an exec method
+        if(script.getMetaClass().getMethods().stream().anyMatch(m -> m.getName().equals("exec"))) {
+            script.run();
+            return script.getBinding().getVariables();
+        } else {
+            return Collections.EMPTY_MAP;
+        }
     }
 
 
